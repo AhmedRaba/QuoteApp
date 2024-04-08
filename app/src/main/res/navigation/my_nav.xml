@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav"
+    app:startDestination="@id/chooseQuoteFragment">
+
+    <fragment
+        android:id="@+id/chooseQuoteFragment"
+        android:name="com.training.quoteapp.fragments.ChooseQuoteFragment"
+        android:label="fragment_choose_quote"
+        tools:layout="@layout/fragment_choose_quote" >
+        <action
+            android:id="@+id/action_chooseQuoteFragment_to_showQuoteFragment"
+            app:destination="@id/showQuoteFragment" />
+        <action
+            android:id="@+id/action_chooseQuoteFragment_to_favoriteFragment"
+            app:destination="@id/favoriteFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/showQuoteFragment"
+        android:name="com.training.quoteapp.fragments.ShowQuoteFragment"
+        android:label="fragment_show_quote"
+        tools:layout="@layout/fragment_show_quote" >
+        <action
+            android:id="@+id/action_showQuoteFragment_to_chooseQuoteFragment"
+            app:destination="@id/chooseQuoteFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/favoriteFragment"
+        android:name="com.training.quoteapp.FavoriteFragment"
+        android:label="fragment_favorite"
+        tools:layout="@layout/fragment_favorite" >
+        <action
+            android:id="@+id/action_favoriteFragment_to_chooseQuoteFragment"
+            app:destination="@id/chooseQuoteFragment" />
+    </fragment>
+</navigation>
