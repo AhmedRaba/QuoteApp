@@ -13,10 +13,8 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun saveQuote(quote: QuoteItem)
 
+
     @Delete
     suspend fun deleteQuote(quote: QuoteItem)
-
-
-
 
 }

@@ -1,10 +1,13 @@
 package com.training.quoteapp.fragments
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,41 +21,39 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.UUID
 import kotlin.random.Random
 
 class ShowQuoteFragment : Fragment() {
+
     private lateinit var binding: FragmentShowQuoteBinding
     private lateinit var viewModel: QuoteViewModel
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.api-ninjas.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(ApiInterface::class.java)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentShowQuoteBinding.inflate(inflater, container, false)
-
-
+        viewModel = ViewModelProvider(this).get(QuoteViewModel::class.java)
 
         showQuote()
 
-
-
+        binding.root.setOnClickListener {
+            showQuote()
+        }
 
         return binding.root
     }
 
-
     private fun showQuote() {
-
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.api-ninjas.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build().create(ApiInterface::class.java)
-
         retrofit.getQuote().enqueue(object : Callback<List<QuoteItem>> {
             override fun onResponse(p0: Call<List<QuoteItem>>, p1: Response<List<QuoteItem>>) {
                 if (p1.isSuccessful) {
+                    animateText()
                     binding.progressBar.isVisible = false
                     binding.quoteLayout.isVisible = true
                     val quote = p1.body()?.get(0)?.quote.toString()
@@ -71,28 +72,52 @@ class ShowQuoteFragment : Fragment() {
             override fun onFailure(p0: Call<List<QuoteItem>>, p1: Throwable) {
                 Log.d("this", p1.message.toString())
             }
-
         })
-
     }
 
     private fun addToFav(quote: String, author: String, category: String) {
-        viewModel = ViewModelProvider(requireActivity())[QuoteViewModel::class.java]
         var isToggled = false
+
+        binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
         val uniqueID = Random.nextInt()
         binding.btnFav.setOnClickListener {
             val quoteItem = QuoteItem(uniqueID, author, category, quote)
             isToggled = !isToggled
             if (isToggled) {
                 binding.btnFav.setImageResource(R.drawable.ic_fav_checked)
-
                 viewModel.saveQuote(quoteItem)
+                Toast.makeText(
+                    requireContext(),
+                    "Quote saved and added to favorites!",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
                 viewModel.deleteQuote(quoteItem)
+                Toast.makeText(requireContext(), "Quote removed from favorites!", Toast.LENGTH_LONG)
+                    .show()
             }
         }
-
     }
 
+    private fun animateText() {
+        binding.tvQuote.alpha = 0f
+        binding.tvAuthor.alpha = 0f
+        binding.btnFav.alpha = 0f
+        ObjectAnimator.ofFloat(binding.tvQuote, "alpha", 0f, 1f).apply {
+            duration = 1000
+            interpolator = AccelerateInterpolator()
+            start()
+        }
+        ObjectAnimator.ofFloat(binding.tvAuthor, "alpha", 0f, 1f).apply {
+            duration = 1000
+            interpolator = AccelerateInterpolator()
+            start()
+        }
+        ObjectAnimator.ofFloat(binding.btnFav, "alpha", 0f, 1f).apply {
+            duration = 1000
+            interpolator = AccelerateInterpolator()
+            start()
+        }
+    }
 }
