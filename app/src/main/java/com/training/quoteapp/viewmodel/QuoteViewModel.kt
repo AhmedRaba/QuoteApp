@@ -15,7 +15,6 @@ class QuoteViewModel(application: Application) : AndroidViewModel(application) {
 
 
     init {
-
         val quoteDao = QuoteDatabase.getDatabase(application).quoteDao()
         repository = QuoteRepository(quoteDao)
     }

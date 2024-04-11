@@ -38,7 +38,7 @@ class ShowQuoteFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentShowQuoteBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(QuoteViewModel::class.java)
+        viewModel = ViewModelProvider(this)[QuoteViewModel::class.java]
 
         showQuote()
 
@@ -77,27 +77,48 @@ class ShowQuoteFragment : Fragment() {
 
     private fun addToFav(quote: String, author: String, category: String) {
         var isToggled = false
-
         binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
+
         val uniqueID = Random.nextInt()
+
+
         binding.btnFav.setOnClickListener {
-            val quoteItem = QuoteItem(uniqueID, author, category, quote)
             isToggled = !isToggled
             if (isToggled) {
                 binding.btnFav.setImageResource(R.drawable.ic_fav_checked)
-                viewModel.saveQuote(quoteItem)
-                Toast.makeText(
-                    requireContext(),
-                    "Quote saved and added to favorites!",
-                    Toast.LENGTH_LONG
-                ).show()
+                addQuoteToFavorites(uniqueID, quote, author, category)
             } else {
                 binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
-                viewModel.deleteQuote(quoteItem)
-                Toast.makeText(requireContext(), "Quote removed from favorites!", Toast.LENGTH_LONG)
-                    .show()
+                removeQuoteFromFavorites(uniqueID, quote, author, category)
             }
         }
+    }
+
+    private fun addQuoteToFavorites(
+        uniqueID: Int,
+        quote: String,
+        author: String,
+        category: String,
+    ) {
+        val quoteItem = QuoteItem(uniqueID, author, category, quote)
+        viewModel.saveQuote(quoteItem)
+        Toast.makeText(
+            requireContext(),
+            "Quote saved and added to favorites!",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun removeQuoteFromFavorites(
+        uniqueID: Int,
+        quote: String,
+        author: String,
+        category: String,
+    ) {
+        val quoteItem = QuoteItem(uniqueID, author, category, quote)
+        viewModel.deleteQuote(quoteItem)
+        Toast.makeText(requireContext(), "Quote removed from favorites!", Toast.LENGTH_LONG)
+            .show()
     }
 
     private fun animateText() {
