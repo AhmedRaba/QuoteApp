@@ -14,5 +14,5 @@ interface ApiInterface {
     @GET("v1/quotes")
     fun getCustomQuote(
         @Query("category") category:String
-    ):Call<QuoteItem>
+    ):Call<List<QuoteItem>>
 }

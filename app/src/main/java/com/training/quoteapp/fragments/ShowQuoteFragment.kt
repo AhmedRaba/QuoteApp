@@ -1,7 +1,12 @@
 package com.training.quoteapp.fragments
 
 import android.animation.ObjectAnimator
+import android.content.ContentValues
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +26,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
+import java.util.UUID
 import kotlin.random.Random
+
 
 class ShowQuoteFragment : Fragment() {
 
@@ -46,33 +54,41 @@ class ShowQuoteFragment : Fragment() {
             showQuote()
         }
 
+        binding.btnShare.setOnClickListener {
+            shareQuote()
+        }
+
         return binding.root
     }
 
+
     private fun showQuote() {
-        retrofit.getQuote().enqueue(object : Callback<List<QuoteItem>> {
-            override fun onResponse(p0: Call<List<QuoteItem>>, p1: Response<List<QuoteItem>>) {
-                if (p1.isSuccessful) {
-                    animateText()
-                    binding.progressBar.isVisible = false
-                    binding.quoteLayout.isVisible = true
-                    val quote = p1.body()?.get(0)?.quote.toString()
-                    val author = p1.body()?.get(0)?.author.toString()
-                    val category = p1.body()?.get(0)?.category.toString()
+        val quoteCategory = arguments?.getString("quoteCategory")
+        val apiKey = "yd2kSBm3mQBhddwdasiEdQ==vknM5PFhUSKX7ugQ"
+        retrofit.getCustomQuote(quoteCategory.toString(), apiKey)
+            .enqueue(object : Callback<List<QuoteItem>> {
+                override fun onResponse(p0: Call<List<QuoteItem>>, p1: Response<List<QuoteItem>>) {
+                    if (p1.isSuccessful) {
+                        animateText()
+                        binding.progressBar.isVisible = false
+                        binding.quoteLayout.isVisible = true
+                        val quote = p1.body()?.get(0)?.quote.toString()
+                        val author = p1.body()?.get(0)?.author.toString()
+                        val category = p1.body()?.get(0)?.category.toString()
 
-                    addToFav(quote, author, category)
+                        addToFav(quote, author, category)
 
-                    binding.tvQuote.text = quote
-                    binding.tvAuthor.text = "-$author"
-                } else {
-                    Log.d("1234", p1.code().toString())
+                        binding.tvQuote.text = quote
+                        binding.tvAuthor.text = "-$author"
+                    } else {
+                        Log.d(tag, p1.code().toString())
+                    }
                 }
-            }
 
-            override fun onFailure(p0: Call<List<QuoteItem>>, p1: Throwable) {
-                Log.d("this", p1.message.toString())
-            }
-        })
+                override fun onFailure(p0: Call<List<QuoteItem>>, p1: Throwable) {
+                    Log.d(tag, p1.message.toString())
+                }
+            })
     }
 
     private fun addToFav(quote: String, author: String, category: String) {
@@ -140,5 +156,49 @@ class ShowQuoteFragment : Fragment() {
             interpolator = AccelerateInterpolator()
             start()
         }
+    }
+
+    private fun shareQuote() {
+        val screenshot = screenShot(requireView())  // Use requireView() for fragment context
+        // Handle potential failure during screenshot capture (optional)
+        share(screenshot)
+    }
+
+
+    private fun screenShot(view: View): Bitmap {
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
+
+    private fun share(bitmap: Bitmap) {
+        val resolver = requireContext().contentResolver
+        val fileName = UUID.randomUUID().toString() + ".png"
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+        }
+
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            ?: return  // Handle potential failure
+
+        try {
+            resolver.openOutputStream(uri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outputStream.flush()
+            }
+        } catch (e: IOException) {
+            Log.d(tag, e.toString())
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_SUBJECT, "Quote App")
+            putExtra(Intent.EXTRA_TEXT, "")
+            putExtra(Intent.EXTRA_STREAM, uri) // Grant temporary access
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)  // Required for sharing
+        }
+        requireContext().startActivity(Intent.createChooser(shareIntent, "hello hello"))
     }
 }

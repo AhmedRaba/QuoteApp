@@ -8,7 +8,7 @@
     tools:context=".fragments.ChooseQuoteFragment">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/ti_country_name"
+        android:id="@+id/ti_quote_category"
         style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-            android:id="@+id/et_country_name"
+            android:id="@+id/et_quote_category"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
@@ -38,6 +38,6 @@
         android:textAllCaps="false"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ti_country_name" />
+        app:layout_constraintTop_toBottomOf="@+id/ti_quote_category" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
