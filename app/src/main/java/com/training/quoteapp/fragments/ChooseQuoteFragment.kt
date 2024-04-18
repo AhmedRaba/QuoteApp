@@ -26,10 +26,15 @@ class ChooseQuoteFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("quoteCategory", binding.etQuoteCategory.text.toString())
 
-            findNavController().navigate(
-                R.id.action_chooseQuoteFragment_to_showQuoteFragment,
-                bundle
-            )
+            if (binding.etQuoteCategory.text.isEmpty()) {
+                binding.tiQuoteCategory.error = "Please select category"
+            } else {
+                binding.tiQuoteCategory.isErrorEnabled=false
+                findNavController().navigate(
+                    R.id.action_chooseQuoteFragment_to_showQuoteFragment,
+                    bundle
+                )
+            }
 
         }
 

@@ -50,7 +50,7 @@ class ShowQuoteFragment : Fragment() {
 
         showQuote()
 
-        binding.root.setOnClickListener {
+        binding.quoteLayout.setOnClickListener {
             showQuote()
         }
 
@@ -77,12 +77,12 @@ class ShowQuoteFragment : Fragment() {
                     binding.tvQuote.text = quote
                     binding.tvAuthor.text = "-$author"
                 } else {
-                    Log.d("1234", p1.code().toString())
+                    Log.d(tag, p1.code().toString())
                 }
             }
 
             override fun onFailure(p0: Call<List<QuoteItem>>, p1: Throwable) {
-                Log.d("this", p1.message.toString())
+                Log.d(tag, p1.message.toString())
             }
         })
     }
@@ -152,6 +152,11 @@ class ShowQuoteFragment : Fragment() {
             interpolator = AccelerateInterpolator()
             start()
         }
+        ObjectAnimator.ofFloat(binding.btnShare, "alpha", 0f, 1f).apply {
+            duration = 1000
+            interpolator = AccelerateInterpolator()
+            start()
+        }
     }
 private fun shareQuote() {
     val screenshot = screenShot(requireView())  // Use requireView() for fragment context
@@ -194,6 +199,6 @@ private fun share(bitmap: Bitmap) {
         putExtra(Intent.EXTRA_STREAM, uri) // Grant temporary access
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)  // Required for sharing
     }
-    requireContext().startActivity(Intent.createChooser(shareIntent, "hello hello"))
+    requireContext().startActivity(Intent.createChooser(shareIntent, "Share quote"))
 }
 }
