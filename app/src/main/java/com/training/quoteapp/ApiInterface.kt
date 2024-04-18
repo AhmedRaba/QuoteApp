@@ -13,6 +13,7 @@ interface ApiInterface {
 
     @GET("v1/quotes")
     fun getCustomQuote(
-        @Query("category") category:String
-    ):Call<List<QuoteItem>>
+        @Query("category") category:String,
+        @Query("X-API-Key") apiKey:String
+    ):Call<QuoteItem>
 }
