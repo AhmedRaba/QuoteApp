@@ -1,7 +1,12 @@
 package com.training.quoteapp.fragments
 
 import android.animation.ObjectAnimator
+import android.content.ContentValues
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +26,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
+import java.util.UUID
 import kotlin.random.Random
+
 
 class ShowQuoteFragment : Fragment() {
 
@@ -44,6 +52,10 @@ class ShowQuoteFragment : Fragment() {
 
         binding.root.setOnClickListener {
             showQuote()
+        }
+
+        binding.btnShare.setOnClickListener {
+            shareQuote()
         }
 
         return binding.root
@@ -141,4 +153,47 @@ class ShowQuoteFragment : Fragment() {
             start()
         }
     }
+private fun shareQuote() {
+    val screenshot = screenShot(requireView())  // Use requireView() for fragment context
+    // Handle potential failure during screenshot capture (optional)
+    share(screenshot)
+}
+
+
+private fun screenShot(view: View): Bitmap {
+    val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    view.draw(canvas)
+    return bitmap
+}
+
+private fun share(bitmap: Bitmap) {
+    val resolver = requireContext().contentResolver
+    val fileName = UUID.randomUUID().toString() + ".png"
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+    }
+
+    val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        ?: return  // Handle potential failure
+
+    try {
+        resolver.openOutputStream(uri)?.use { outputStream ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+        }
+    } catch (e: IOException) {
+        Log.d(tag, e.toString())
+    }
+
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "image/png"
+        putExtra(Intent.EXTRA_SUBJECT, "Quote App")
+        putExtra(Intent.EXTRA_TEXT, "")
+        putExtra(Intent.EXTRA_STREAM, uri) // Grant temporary access
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)  // Required for sharing
+    }
+    requireContext().startActivity(Intent.createChooser(shareIntent, "hello hello"))
+}
 }
