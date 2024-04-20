@@ -35,6 +35,7 @@ class ShowQuoteFragment : Fragment() {
 
     private lateinit var binding: FragmentShowQuoteBinding
     private lateinit var viewModel: QuoteViewModel
+    private val apiKey="yd2kSBm3mQBhddwdasiEdQ==vknM5PFhUSKX7ugQ"
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://api.api-ninjas.com/")
@@ -62,7 +63,8 @@ class ShowQuoteFragment : Fragment() {
     }
 
     private fun showQuote() {
-        retrofit.getQuote().enqueue(object : Callback<List<QuoteItem>> {
+        val category=arguments?.getString("quoteCategory")
+        retrofit.getCustomQuote(category.toString(),apiKey).enqueue(object : Callback<List<QuoteItem>> {
             override fun onResponse(p0: Call<List<QuoteItem>>, p1: Response<List<QuoteItem>>) {
                 if (p1.isSuccessful) {
                     animateText()
