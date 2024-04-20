@@ -8,12 +8,12 @@ import retrofit2.http.Query
 interface ApiInterface {
 
     @GET("v1/quotes?category=happiness&X-API-Key=yd2kSBm3mQBhddwdasiEdQ==vknM5PFhUSKX7ugQ")
-    fun getQuote():Call<List<QuoteItem>>
+    fun getQuote(): Call<List<QuoteItem>>
 
 
     @GET("v1/quotes")
     fun getCustomQuote(
-        @Query("category") category:String,
-        @Query("X-API-Key") apiKey:String
-    ):Call<List<QuoteItem>>
+        @Query("category") category: String,
+        @Query("X-API-Key") apiKey: String,
+    ): Call<List<QuoteItem>>
 }

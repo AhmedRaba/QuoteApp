@@ -2,6 +2,7 @@ package com.training.quoteapp.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.training.quoteapp.data.QuoteDatabase
 import com.training.quoteapp.data.model.QuoteItem
@@ -12,11 +13,12 @@ import kotlinx.coroutines.launch
 class QuoteViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: QuoteRepository
-
+    val readAllData: LiveData<List<QuoteItem>>
 
     init {
         val quoteDao = QuoteDatabase.getDatabase(application).quoteDao()
         repository = QuoteRepository(quoteDao)
+        readAllData = quoteDao.readAllData()
     }
 
 

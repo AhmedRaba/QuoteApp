@@ -29,13 +29,20 @@ class ChooseQuoteFragment : Fragment() {
             if (binding.etQuoteCategory.text.isEmpty()) {
                 binding.tiQuoteCategory.error = "Please select category"
             } else {
-                binding.tiQuoteCategory.isErrorEnabled=false
+                binding.tiQuoteCategory.isErrorEnabled = false
                 findNavController().navigate(
                     R.id.action_chooseQuoteFragment_to_showQuoteFragment,
                     bundle
                 )
             }
 
+        }
+
+
+        binding.btnFavQuote.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_chooseQuoteFragment_to_favoriteFragment
+            )
         }
 
 
