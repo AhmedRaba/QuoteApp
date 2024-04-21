@@ -23,7 +23,7 @@ class FavoriteFragment : Fragment() {
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this)[QuoteViewModel::class.java]
 
-        val adapter = QuoteAdapter()
+        val adapter = QuoteAdapter(requireContext(),viewModel)
 
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(binding.recyclerView)
