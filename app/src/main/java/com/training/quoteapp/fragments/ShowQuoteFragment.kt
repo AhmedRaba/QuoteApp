@@ -73,12 +73,11 @@ class ShowQuoteFragment : Fragment() {
                         binding.quoteLayout.isVisible = true
                         val quote = p1.body()?.get(0)?.quote.toString()
                         val author = p1.body()?.get(0)?.author.toString()
-                        val category = p1.body()?.get(0)?.category.toString()
 
-                        addToFav(quote, author, category)
+                        saveQuote(quote, author, category.toString())
 
                         binding.tvQuote.text = quote
-                        binding.tvAuthor.text = "-$author"
+                        binding.tvAuthor.text = author
                     } else {
                         Log.d(tag, p1.code().toString())
                     }
@@ -90,7 +89,7 @@ class ShowQuoteFragment : Fragment() {
             })
     }
 
-    private fun addToFav(quote: String, author: String, category: String) {
+    private fun saveQuote(quote: String, author: String, category: String) {
         var isToggled = false
         binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
 
@@ -160,7 +159,7 @@ class ShowQuoteFragment : Fragment() {
     }
 
     private fun shareQuote() {
-        val screenshot = screenShot(requireView())  // Use requireView() for fragment context
+        val screenshot = screenShot(requireView())
 
         share(screenshot)
     }
@@ -182,7 +181,7 @@ class ShowQuoteFragment : Fragment() {
         }
 
         val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            ?: return  // Handle potential failure
+            ?: return
 
         try {
             resolver.openOutputStream(uri)?.use { outputStream ->
@@ -197,8 +196,8 @@ class ShowQuoteFragment : Fragment() {
             type = "image/png"
             putExtra(Intent.EXTRA_SUBJECT, "Quote App")
             putExtra(Intent.EXTRA_TEXT, "")
-            putExtra(Intent.EXTRA_STREAM, uri) // Grant temporary access
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)  // Required for sharing
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         requireContext().startActivity(Intent.createChooser(shareIntent, "Share quote"))
     }

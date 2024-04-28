@@ -1,5 +1,6 @@
 package com.training.quoteapp.data
 
+
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -18,7 +19,9 @@ import com.training.quoteapp.data.model.QuoteItem
 import com.training.quoteapp.databinding.FavQuoteItemBinding
 import com.training.quoteapp.viewmodel.QuoteViewModel
 import java.io.IOException
-import java.util.UUID
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class QuoteAdapter(private val context: Context, private val viewModel: QuoteViewModel) :
     RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
@@ -42,7 +45,7 @@ class QuoteAdapter(private val context: Context, private val viewModel: QuoteVie
         binding.tvQuote.text = currentItem.quote
         binding.tvAuthor.text = currentItem.author
 
-        addToFav(binding, currentItem)
+        saveQuote(binding, currentItem)
 
 
         binding.btnShare.setOnClickListener {
@@ -56,7 +59,7 @@ class QuoteAdapter(private val context: Context, private val viewModel: QuoteVie
         notifyDataSetChanged()
     }
 
-    private fun addToFav(binding: FavQuoteItemBinding, quoteItem: QuoteItem) {
+    private fun saveQuote(binding: FavQuoteItemBinding, quoteItem: QuoteItem) {
         var isToggled = false
         binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
 
@@ -86,21 +89,20 @@ class QuoteAdapter(private val context: Context, private val viewModel: QuoteVie
 
         recentlyDeleted.add(quoteItem)
 
+        val position = quoteList.indexOf(quoteItem)
 
         viewModel.deleteQuote(quoteItem)
-        notifyDataSetChanged()
+        notifyItemRemoved(position)
         Snackbar.make(binding.root, "Quote removed from favorites!", Snackbar.LENGTH_SHORT)
             .setAction("Undo") {
                 viewModel.saveQuote(recentlyDeleted.removeLast())
-                notifyDataSetChanged()
-
+                notifyItemInserted(position)
             }.setActionTextColor(ContextCompat.getColor(context, R.color.black))
             .show()
     }
 
     private fun shareQuote(view: View) {
-        val screenshot = screenShot(view)  // Use requireView() for fragment context
-        // Handle potential failure during screenshot capture (optional)
+        val screenshot = screenShot(view)
         share(screenshot)
     }
 
@@ -114,14 +116,15 @@ class QuoteAdapter(private val context: Context, private val viewModel: QuoteVie
 
     private fun share(bitmap: Bitmap) {
         val resolver = context.contentResolver
-        val fileName = UUID.randomUUID().toString() + ".png"
+        val fileName =
+            SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date()) + ".png"
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
         }
 
         val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            ?: return  // Handle potential failure
+            ?: return
 
         try {
             resolver.openOutputStream(uri)?.use { outputStream ->
@@ -129,15 +132,15 @@ class QuoteAdapter(private val context: Context, private val viewModel: QuoteVie
                 outputStream.flush()
             }
         } catch (e: IOException) {
-            Log.d("FavFrag", e.toString())
+            Log.d("QuoteAdapter", e.toString())
         }
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "image/png"
             putExtra(Intent.EXTRA_SUBJECT, "Quote App")
             putExtra(Intent.EXTRA_TEXT, "")
-            putExtra(Intent.EXTRA_STREAM, uri) // Grant temporary access
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)  // Required for sharing
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(Intent.createChooser(shareIntent, "Share quote"))
     }

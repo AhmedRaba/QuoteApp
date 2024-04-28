@@ -3,6 +3,7 @@ package com.training.quoteapp
 import com.training.quoteapp.data.model.QuoteItem
 import retrofit2.Call
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface ApiInterface {
@@ -14,6 +15,6 @@ interface ApiInterface {
     @GET("v1/quotes")
     fun getCustomQuote(
         @Query("category") category: String,
-        @Query("X-API-Key") apiKey: String,
+        @Header("X-API-Key") apiKey: String,
     ): Call<List<QuoteItem>>
 }
