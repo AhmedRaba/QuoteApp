@@ -4,6 +4,8 @@ This Android app allows users to manage quotes, including adding, viewing, editi
 
 ## Features
 
+* MVVM
+* Navigation component
 * Add new quotes with the author to favorites.
 * View a list of all quotes you saved.
 * Delete quotes.
