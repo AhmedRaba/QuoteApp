@@ -1,7 +1,7 @@
 
 # QuoteApp - Inspirational Quotes Application
 
-**QuoteApp** is an Android application that uses Retrofit to fetch quotes from Ninja APIs.
+**QuoteApp** is an Android application that uses Retrofit to fetch quotes from Api Ninjas.
 
 This Android app allows users to manage quotes, including adding, viewing, and deleting them. It utilizes Room for local data storage and offers a user-friendly interface.
 
@@ -27,6 +27,7 @@ This Android app allows users to manage quotes, including adding, viewing, and d
 * Retrofit
 * Room Database
 * Android ViewModel and LiveData
+* Navigation component
 * Material Design
 * Coroutines
 
