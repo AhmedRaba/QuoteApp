@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 
-interface ApiInterface {
+interface QuoteApi {
 
     @GET("v1/quotes?category=happiness&X-API-Key=yd2kSBm3mQBhddwdasiEdQ==vknM5PFhUSKX7ugQ")
     fun getQuote(): Call<List<QuoteItem>>

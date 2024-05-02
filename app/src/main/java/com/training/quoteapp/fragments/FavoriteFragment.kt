@@ -10,7 +10,10 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import com.training.quoteapp.data.QuoteAdapter
 import com.training.quoteapp.databinding.FragmentFavoriteBinding
 import com.training.quoteapp.viewmodel.QuoteViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class FavoriteFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoriteBinding

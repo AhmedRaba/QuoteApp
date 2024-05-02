@@ -11,28 +11,4 @@ abstract class QuoteDatabase : RoomDatabase() {
 
     abstract fun quoteDao(): QuoteDao
 
-    companion object {
-
-        @Volatile
-        private var INSTANCE: QuoteDatabase? = null
-
-        fun getDatabase(context: Context): QuoteDatabase {
-            val tempInstance = INSTANCE
-            if (tempInstance != null) {
-                return tempInstance
-            }
-            synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    QuoteDatabase::class.java,
-                    "quote_database"
-                ).build()
-                INSTANCE = instance
-                return instance
-            }
-        }
-
-
-    }
-
 }

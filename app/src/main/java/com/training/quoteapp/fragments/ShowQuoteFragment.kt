@@ -15,32 +15,28 @@ import android.view.animation.AccelerateInterpolator
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.training.quoteapp.ApiInterface
 import com.training.quoteapp.R
 import com.training.quoteapp.data.model.QuoteItem
 import com.training.quoteapp.databinding.FragmentShowQuoteBinding
 import com.training.quoteapp.viewmodel.QuoteViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.UUID
 import kotlin.random.Random
 
 
+@AndroidEntryPoint
 class ShowQuoteFragment : Fragment() {
 
     private lateinit var binding: FragmentShowQuoteBinding
     private lateinit var viewModel: QuoteViewModel
     private val apiKey = "yd2kSBm3mQBhddwdasiEdQ==vknM5PFhUSKX7ugQ"
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://api.api-ninjas.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build().create(ApiInterface::class.java)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,29 +60,38 @@ class ShowQuoteFragment : Fragment() {
 
     private fun showQuote() {
         val category = arguments?.getString("quoteCategory")
-        retrofit.getCustomQuote(category.toString(), apiKey)
-            .enqueue(object : Callback<List<QuoteItem>> {
-                override fun onResponse(p0: Call<List<QuoteItem>>, p1: Response<List<QuoteItem>>) {
-                    if (p1.isSuccessful) {
-                        animateText()
-                        binding.progressBar.isVisible = false
-                        binding.quoteLayout.isVisible = true
-                        val quote = p1.body()?.get(0)?.quote.toString()
-                        val author = p1.body()?.get(0)?.author.toString()
 
-                        saveQuote(quote, author, category.toString())
 
-                        binding.tvQuote.text = quote
-                        binding.tvAuthor.text = author
-                    } else {
-                        Log.d(tag, p1.code().toString())
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.fetchCustomQuotes(category.toString(), apiKey)
+                .enqueue(object : Callback<List<QuoteItem>> {
+                    override fun onResponse(
+                        p0: Call<List<QuoteItem>>,
+                        p1: Response<List<QuoteItem>>,
+                    ) {
+                        if (p1.isSuccessful) {
+                            animateText()
+                            binding.progressBar.isVisible = false
+                            binding.quoteLayout.isVisible = true
+                            val quote = p1.body()?.get(0)?.quote.toString()
+                            val author = p1.body()?.get(0)?.author.toString()
+
+                            saveQuote(quote, author, category.toString())
+
+                            binding.tvQuote.text = quote
+                            binding.tvAuthor.text = author
+                        } else {
+                            Log.d(tag, p1.code().toString())
+                        }
                     }
-                }
 
-                override fun onFailure(p0: Call<List<QuoteItem>>, p1: Throwable) {
-                    Log.d(tag, p1.message.toString())
-                }
-            })
+
+                    override fun onFailure(p0: Call<List<QuoteItem>>, p1: Throwable) {
+                        Log.d(tag, p1.message.toString())
+                    }
+                })
+        }
+
     }
 
     private fun saveQuote(quote: String, author: String, category: String) {
@@ -95,40 +100,32 @@ class ShowQuoteFragment : Fragment() {
 
         val uniqueID = Random.nextInt()
 
+        val quoteItem = QuoteItem(uniqueID, quote, author, category)
 
         binding.btnFav.setOnClickListener {
             isToggled = !isToggled
             if (isToggled) {
                 binding.btnFav.setImageResource(R.drawable.ic_fav_checked)
-                addQuoteToFavorites(uniqueID, quote, author, category)
+                addQuoteToFavorites(quoteItem)
             } else {
                 binding.btnFav.setImageResource(R.drawable.ic_fav_unchecked)
-                removeQuoteFromFavorites(uniqueID, quote, author, category)
+                removeQuoteFromFavorites(quoteItem)
             }
         }
     }
 
     private fun addQuoteToFavorites(
-        uniqueID: Int,
-        quote: String,
-        author: String,
-        category: String,
+        quoteItem: QuoteItem,
     ) {
-        val quoteItem = QuoteItem(uniqueID, author, category, quote)
         viewModel.saveQuote(quoteItem)
         Snackbar.make(binding.root, "Quote saved and added to favorites!", Snackbar.LENGTH_SHORT)
             .show()
     }
 
     private fun removeQuoteFromFavorites(
-        uniqueID: Int,
-        quote: String,
-        author: String,
-        category: String,
+        quoteItem: QuoteItem,
     ) {
-        val quoteItem = QuoteItem(uniqueID, author, category, quote)
         viewModel.deleteQuote(quoteItem)
-
         Snackbar.make(binding.root, "Quote removed from favorites!", Snackbar.LENGTH_SHORT).show()
     }
 

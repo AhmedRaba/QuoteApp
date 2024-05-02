@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class QuoteItem(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+    val quote: String,
     val author: String,
     val category: String,
-    val quote: String,
 )

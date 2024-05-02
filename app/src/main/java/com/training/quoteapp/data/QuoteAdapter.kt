@@ -96,7 +96,7 @@ class QuoteAdapter(private val context: Context, private val viewModel: QuoteVie
         Snackbar.make(binding.root, "Quote removed from favorites!", Snackbar.LENGTH_SHORT)
             .setAction("Undo") {
                 viewModel.saveQuote(recentlyDeleted.removeLast())
-                notifyItemInserted(position)
+                notifyDataSetChanged()
             }.setActionTextColor(ContextCompat.getColor(context, R.color.black))
             .show()
     }
