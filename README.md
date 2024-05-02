@@ -30,6 +30,7 @@ This Android app allows users to manage quotes, including adding, viewing, and d
 * Navigation component
 * Material Design
 * Coroutines
+* Dagger Hilt
 
 
 
