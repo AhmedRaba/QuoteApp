@@ -1,5 +1,15 @@
 
+# QuoteApp
+This Android app allows users to manage quotes, including adding, viewing, editing, and deleting them. It utilizes Room for local data storage and offers a user-friendly interface.
 
+## Features
+
+* Add new quotes with the author to favorites.
+* View a list of all quotes you saved.
+* Delete quotes.
+* Mark quotes as favorites.
+* Share quotes with others.
+* Save quotes as images.
 
 	
  <div align="center">
